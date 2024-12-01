@@ -55,6 +55,7 @@ async def generate_image(request: InferenceRequest2):
 
         # # Get the generated image
         # generated_image = output.images[0]
+        generated_image = logo_image
 
         # Generate QR code image
         qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=4)
