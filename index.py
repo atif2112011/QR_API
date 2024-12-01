@@ -5,8 +5,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import qrcode
 from PIL import Image
-import torch
-from some_pipeline_module import pipe, SAMPLER_MAP  # Replace with your actual import for the pipeline
+
 
 app = FastAPI()
 
@@ -14,13 +13,7 @@ app = FastAPI()
 class InferenceRequest2(BaseModel):
     qr_code_content: str
     logo_base64: str
-    prompt: str
-    negative_prompt: str
-    sampler: str
-    seed: int
-    guidance_scale: float
-    controlnet_conditioning_scale: float
-    strength: float
+   
 
 
 @app.post("/generate_logo/")
@@ -38,30 +31,30 @@ async def generate_image(request: InferenceRequest2):
         if not isinstance(logo_image, (Image.Image)):
             raise ValueError(f"Input type {type(logo_image)} is not supported. Expected PIL.Image.Image.")
 
-        # Provide a default prompt if none is provided
-        default_prompt = request.prompt
+        # # Provide a default prompt if none is provided
+        # default_prompt = request.prompt
 
-        # Configure the pipeline scheduler
-        pipe.scheduler = SAMPLER_MAP[request.sampler](pipe.scheduler.config)
-        generator = torch.manual_seed(request.seed) if request.seed != -1 else torch.Generator()
+        # # Configure the pipeline scheduler
+        # pipe.scheduler = SAMPLER_MAP[request.sampler](pipe.scheduler.config)
+        # generator = torch.manual_seed(request.seed) if request.seed != -1 else torch.Generator()
 
-        # Run inference using the QR code image as control
-        output = pipe(
-            prompt=default_prompt,
-            negative_prompt=request.negative_prompt,
-            image=logo_image,
-            control_image=logo_image,
-            width=768,
-            height=768,
-            guidance_scale=request.guidance_scale,
-            controlnet_conditioning_scale=request.controlnet_conditioning_scale,
-            generator=generator,
-            strength=request.strength,
-            num_inference_steps=50,
-        )
+        # # Run inference using the QR code image as control
+        # output = pipe(
+        #     prompt=default_prompt,
+        #     negative_prompt=request.negative_prompt,
+        #     image=logo_image,
+        #     control_image=logo_image,
+        #     width=768,
+        #     height=768,
+        #     guidance_scale=request.guidance_scale,
+        #     controlnet_conditioning_scale=request.controlnet_conditioning_scale,
+        #     generator=generator,
+        #     strength=request.strength,
+        #     num_inference_steps=50,
+        # )
 
-        # Get the generated image
-        generated_image = output.images[0]
+        # # Get the generated image
+        # generated_image = output.images[0]
 
         # Generate QR code image
         qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=4)

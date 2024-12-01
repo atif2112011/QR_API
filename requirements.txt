@@ -1,5 +1,4 @@
 fastapi==0.95.1
 uvicorn==0.23.1
 pillow==9.4.0
-torch==2.1.0
 qrcode[pil]==7.3.1
