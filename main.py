@@ -5,6 +5,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import qrcode
 from PIL import Image
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
@@ -14,6 +15,14 @@ class InferenceRequest2(BaseModel):
     qr_code_content: str
     logo_base64: str
    
+# Add CORS middleware with settings to allow all domains
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all domains
+    allow_credentials=True,  # Allow cookies to be sent with cross-origin requests
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)   
 
 
 @app.post("/generate_logo/")
