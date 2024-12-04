@@ -14,7 +14,7 @@ app = FastAPI()
 # Define the request body schema for the endpoint
 class InferenceRequest2(BaseModel):
     qr_code_content: str
-    logo_base64: str
+    # logo_base64: str
     download_link:str
    
 # Add CORS middleware with settings to allow all domains
