@@ -7,7 +7,7 @@ import qrcode
 import httpx
 from PIL import Image
 from fastapi.middleware.cors import CORSMiddleware
-
+import asyncio
 
 app = FastAPI()
 
@@ -121,4 +121,28 @@ async def generate_image(request: InferenceRequest2):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/health_check")
+async def health_check():
+    return {"status": "Server is running"}
+
+@app.on_event("startup")
+async def startup_event():
+    # Start a background task to keep the server awake
+    asyncio.create_task(keep_server_awake())
+
+async def keep_server_awake():
+    server_url = "https://qr-api-zucr.onrender.com/health_check"  # Replace with your actual server URL
+    interval = 300  # 5 minutes
+    while True:
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(server_url)
+                if response.status_code == 200:
+                    print(f"Keep-alive ping successful: {response.json()}")
+                else:
+                    print(f"Keep-alive ping failed: Status code {response.status_code}")
+        except Exception as e:
+            print(f"Keep-alive error: {e}")
+        await asyncio.sleep(interval)
 
