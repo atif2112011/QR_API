@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import qrcode
+import httpx
 from PIL import Image
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -14,6 +15,7 @@ app = FastAPI()
 class InferenceRequest2(BaseModel):
     qr_code_content: str
     logo_base64: str
+    download_link:str
    
 # Add CORS middleware with settings to allow all domains
 app.add_middleware(
@@ -33,7 +35,17 @@ async def generate_image(request: InferenceRequest2):
             raise HTTPException(status_code=400, detail="QR Code Content is required")
 
         # Decode base64 logo image and convert to PIL Image
-        logo_image_data = base64.b64decode(request.logo_base64)
+        # logo_image_data = base64.b64decode(request.logo_base64)
+        # logo_image = Image.open(io.BytesIO(logo_image_data)).convert("RGBA")
+
+        # Download the logo image from the provided download link
+        async with httpx.AsyncClient() as client:
+            response = await client.get(request.download_link)
+            if response.status_code != 200:
+                raise HTTPException(status_code=400, detail="Failed to download the logo image.")
+            logo_image_data = response.content
+
+        # Convert the downloaded image data to a PIL Image
         logo_image = Image.open(io.BytesIO(logo_image_data)).convert("RGBA")
 
         # Ensure logo_image is in correct format (PIL Image)
